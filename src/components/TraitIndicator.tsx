@@ -6,7 +6,7 @@ interface TraitIndicatorProps {
 }
 
 export const TraitIndicator: React.FC<TraitIndicatorProps> = ({ type }) => {
-  let bgColor = "bg-gray-400"; // Default
+  let bgColor = "bg-gray-200"; // Default
   if (type === "user") {
     bgColor = "bg-green-500";
   } else if (type === "group") {
