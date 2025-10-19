@@ -16,7 +16,7 @@ const SCHEMA_OPTIONS: SchemaOption[] = [
   { label: "State", value: "state", type: "user" },
 ];
 
-const WEBHOOK_URL = "https://webhook.site/17dce9d5-1851-469c-b08b-237cbd7597a6";
+const WEBHOOK_URL = "/.netlify/functions/proxyWebhook";
 
 interface SegmentPopupProps {
   onClose: () => void;
