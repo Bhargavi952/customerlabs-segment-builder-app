@@ -1,12 +1,13 @@
 import { useState } from "react";
 import Button from "./components/Button";
+import SegmentPopup from "./components/SegmentPopup";
 
 function App() {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
 
   return (
     <div className="min-h-screen relative bg-gray-100 p-8 flex justify-center items-center">
-      <div className="bg-teal-500 text-white p-4 w-full absolute top-0 left-0 flex items-center">
+      <div className="bg-[#39aebc] text-white p-4 w-full absolute top-0 left-0 flex items-center">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           className="h-5 w-5 mr-2"
@@ -21,14 +22,14 @@ function App() {
             d="M15 19l-7-7 7-7"
           />
         </svg>
-        <h2 className="text-xl font-semibold">Saving Segment</h2>
+        <h2 className="text-xl font-semibold">View Audience</h2>
       </div>
       <Button onClick={() => setIsPopupOpen(true)} variant="primary">
         Save segment
       </Button>
 
       {/* The Popup Component */}
-      {isPopupOpen && <>Popup</>}
+      {isPopupOpen && <SegmentPopup onClose={() => setIsPopupOpen(false)} />}
     </div>
   );
 }
