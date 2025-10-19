@@ -115,7 +115,7 @@ const SegmentPopup: React.FC<SegmentPopupProps> = ({ onClose }) => {
     console.log("Sending Payload:", payload);
 
     try {
-      const response = await fetch(WEBHOOK_URL, {
+      const response = await fetch("/.netlify/functions/proxyWebhook", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -261,7 +261,7 @@ const SegmentPopup: React.FC<SegmentPopupProps> = ({ onClose }) => {
             )}
           </div>
 
-          <div className="p-4 bg-[#f6f6f6] flex justify-start space-x-4 border-t border-gray-200">
+          <div className="p-4 bg-[#f6f6f6] flex justify-start gap-6 md:gap-4 ">
             <Button
               variant="primary"
               onClick={handleSaveSegment}
