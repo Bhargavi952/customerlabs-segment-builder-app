@@ -1,69 +1,99 @@
-# React + TypeScript + Vite
+# 🧩 CustomerLabs Segment Builder App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A single-page application built to demonstrate the creation and saving of custom user segments using a dynamic schema builder interface. The application features a modal workflow where users can name a segment and dynamically select user and group traits to construct a payload, which is then sent to an external webhook via a Netlify Function proxy.
 
-Currently, two official plugins are available:
+## ✨ Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+* **Dynamic Schema Builder:** Allows users to add, remove, and modify schema traits (e.g., 'First Name', 'Age', 'Account Name') for a new segment.
+* **Trait Exclusivity:** Ensures that each schema trait can only be selected once across all active dropdowns within the segment builder.
+* **Trait Indicators:** Visual indicators differentiate between User Traits (e.g., green dot) and Group Traits (e.g., red dot).
+* **Netlify Proxy Integration:** Uses a Netlify Function to act as a CORS proxy, successfully submitting the JSON segment payload to an external `webhook.site` endpoint.
+* **Form Validation:** Basic validation for segment name and schema count.
 
-## React Compiler
+## 🚀 Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+This project is built using modern JavaScript development tools to ensure performance and maintainability.
 
-## Expanding the ESLint configuration
+| Technology | Purpose |
+| :--- | :--- |
+| **Frontend** | |
+| **React 18 + TypeScript** | Core application logic and type safety. |
+| **Vite** | Fast development server and optimized build tooling. |
+| **Tailwind CSS** | Utility-first CSS framework for rapid UI development. |
+| **Deployment** | |
+| **Netlify** | Continuous deployment and hosting. |
+| **Netlify Functions** | Serverless function (`proxyWebhook.js`) for handling CORS and API communication. |
+| **Dependencies** | |
+| **`node-fetch@2`** | Used in the Netlify function for making external HTTP requests. |
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## 📁 Project Structure (Key Files)
 
-````js
-export default defineConfig([
-  globalIgnores(["dist"]),
-  {
-    # customerlabs-segment-builder-app
+| File / Directory | Description |
+| :--- | :--- |
+| `src/components/SegmentPopup.tsx` | The core modal component containing the state, business logic, and API submission handler (`handleSaveSegment`). |
+| `src/components/SchemaDropDown.tsx` | Reusable component for selecting and managing a single schema trait. |
+| `src/types.ts` | TypeScript definitions for schema options, selected schemas, and the final payload structure. |
+| `netlify/functions/proxyWebhook.js` | The Node.js serverless function that proxies the segment data POST request to `webhook.site`, bypassing CORS limitations. |
+| `src/App.tsx` | The application's main entry point (contains the demo component). |
 
-    Initial commit README — simple and minimal.
+## ⚙️ Local Development
 
-    Tech used
-    - Vite
-    - React 18 + TypeScript
-    - Tailwind CSS
+### Prerequisites
 
-    How to run (PowerShell)
+You need **Node.js** (v18+) and **npm** or **Yarn** installed on your machine.
 
-    Install dependencies
+### Installation
 
-    ```powershell
+1.  Clone the repository:
+    ```bash
+    git clone [Your-Repo-URL]
+    cd customerlabs-segment-builder-app
+    ```
+
+2.  Install dependencies (this includes frontend packages and `node-fetch` for the Netlify function):
+    ```bash
     npm install
+    # OR
+    yarn install
     ```
 
-    Start development server (HMR)
+### Running the Application
 
-    ```powershell
+1.  **Start Development Server (with HMR):**
+    ```bash
     npm run dev
+    # OR
+    yarn dev
     ```
+    The application will typically be available at `http://localhost:5173`.
 
-    Build for production
-
-    ```powershell
+2.  **Build for Production:**
+    ```bash
     npm run build
+    # OR
+    yarn build
     ```
+    This command compiles the source code into the `dist` directory.
 
-    Preview production build
-
-    ```powershell
+3.  **Preview Production Build:**
+    ```bash
     npm run preview
+    # OR
+    yarn preview
     ```
 
-    Lint the project
-
-    ```powershell
+4.  **Lint the Project:**
+    ```bash
     npm run lint
+    # OR
+    yarn lint
     ```
 
-    Main files
-    - `src/main.tsx` — app entry
-    - `src/App.tsx` — demo component
+## ⚠️ Important Note on Netlify Function
 
-    You can update this README later with project description, license, badges, and contribution notes.
-      },
-````
+To deploy this application successfully on Netlify:
+
+1.  Ensure your function files are located in the `netlify/functions` directory.
+2.  The `node-fetch` package **must** be declared in the root `package.json` under `dependencies`.
+3.  The client-side `fetch` in `SegmentPopup.tsx` must point to the proxy path: `/.netlify/functions/proxyWebhook`.
+
