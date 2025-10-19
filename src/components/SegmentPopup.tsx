@@ -4,17 +4,8 @@ import Button from "./Button";
 import { TraitIndicator } from "./TraitIndicator";
 import type { SchemaOption, SelectedSchema, SegmentPayload } from "../types";
 import SchemaDropDown from "./SchemaDropDown";
-
-// Master list of schema options
-const SCHEMA_OPTIONS: SchemaOption[] = [
-  { label: "First Name", value: "first_name", type: "user" },
-  { label: "Last Name", value: "last_name", type: "user" },
-  { label: "Gender", value: "gender", type: "user" },
-  { label: "Age", value: "age", type: "user" },
-  { label: "Account Name", value: "account_name", type: "group" },
-  { label: "City", value: "city", type: "user" },
-  { label: "State", value: "state", type: "user" },
-];
+import ChevronLeftIcon from "./common/ChevronLeftIcon";
+import { SCHEMA_OPTIONS } from "./common/constant";
 
 const WEBHOOK_URL = "/.netlify/functions/proxyWebhook";
 
@@ -23,10 +14,11 @@ interface SegmentPopupProps {
 }
 
 const SegmentPopup: React.FC<SegmentPopupProps> = ({ onClose }) => {
-  const [segmentName, setSegmentName] = useState("");
+  const [segmentName, setSegmentName] = useState<string>("");
   const [selectedSchemas, setSelectedSchemas] = useState<SelectedSchema[]>([]);
-  const [addSchemaDropdownValue, setAddSchemaDropdownValue] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [addSchemaDropdownValue, setAddSchemaDropdownValue] =
+    useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<boolean>(false);
 
@@ -92,8 +84,12 @@ const SegmentPopup: React.FC<SegmentPopupProps> = ({ onClose }) => {
   };
 
   const handleSaveSegment = async () => {
-    if (!segmentName.trim() || selectedSchemas.length === 0) {
-      setError("Please enter a segment name and add at least one schema.");
+    if (!segmentName.trim()) {
+      setError("Please enter a segment name!!!");
+      return;
+    }
+    if (selectedSchemas.length === 0) {
+      setError("Please add at least one schema to save the segment!!!");
       return;
     }
 
@@ -155,7 +151,8 @@ const SegmentPopup: React.FC<SegmentPopupProps> = ({ onClose }) => {
             onClick={onClose}
             className="bg-[#39aebc] text-white p-4 flex items-center cursor-pointer"
           >
-            <svg
+            <ChevronLeftIcon />
+            {/* <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-5 w-5 mr-2"
               fill="none"
@@ -168,30 +165,32 @@ const SegmentPopup: React.FC<SegmentPopupProps> = ({ onClose }) => {
                 strokeWidth={2}
                 d="M15 19l-7-7 7-7"
               />
-            </svg>
+            </svg> */}
             <h2 className="text-xl font-semibold">Saving Segment</h2>
           </div>
 
           {/* Body Content */}
-          <div className="p-6 flex-grow overflow-y-auto">
-            <p className="mb-2 text-sm text-gray-600">
+          <div className="p-2 flex-grow overflow-y-auto">
+            <p className="mb-4 px-2 text-sm text-black">
               Enter the Name of the Segment
             </p>
-            <input
-              type="text"
-              placeholder="Name of the segment"
-              value={segmentName}
-              onChange={(e) => setSegmentName(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded text-sm mb-6 focus:outline-none focus:border-teal-500"
-              disabled={isLoading}
-            />
+            <div className="mx-2 mb-4">
+              <input
+                type="text"
+                placeholder="Name of the segment"
+                value={segmentName}
+                onChange={(e) => setSegmentName(e.target.value)}
+                className="w-full  p-2 border border-gray-300 rounded text-black text-sm focus:outline-none focus:border-teal-500"
+                disabled={isLoading}
+              />
+            </div>
 
-            <p className="mb-4 text-sm text-gray-600">
+            <p className="mb-4 p-2 text-sm text-black">
               To save your segment, you need to add the schemas to build the
               query
             </p>
 
-            <div className="flex space-x-4 justify-end mb-4 text-xs">
+            <div className="flex space-x-4 pr-10 justify-end mb-4 text-xs">
               <span className="flex items-center">
                 <TraitIndicator type="user" /> User Traits
               </span>
@@ -200,23 +199,29 @@ const SegmentPopup: React.FC<SegmentPopupProps> = ({ onClose }) => {
               </span>
             </div>
 
-            <div className="bg-blue-50 p-4 rounded mb-6 border border-blue-100">
-              {selectedSchemas.map((schema) => (
-                <SchemaDropDown
-                  key={schema.id}
-                  currentValue={schema.value}
-                  allOptions={SCHEMA_OPTIONS}
-                  selectedValues={currentSelectedValues}
-                  onSelectChange={(newValue: any) =>
-                    handleSchemaChange(schema.id, newValue)
-                  }
-                  onRemove={() => handleRemoveSchema(schema.id)}
-                  isDisabled={isLoading}
-                />
-              ))}
+            <div className="bg-white  rounded mb-6">
+              <div
+                className={`${
+                  selectedSchemas.length > 0 ? "border border-blue-500 p-4" : ""
+                }`}
+              >
+                {selectedSchemas?.map((schema) => (
+                  <SchemaDropDown
+                    key={schema.id}
+                    currentValue={schema.value}
+                    allOptions={SCHEMA_OPTIONS}
+                    selectedValues={currentSelectedValues}
+                    onSelectChange={(newValue: any) =>
+                      handleSchemaChange(schema.id, newValue)
+                    }
+                    onRemove={() => handleRemoveSchema(schema.id)}
+                    isDisabled={isLoading}
+                  />
+                ))}
+              </div>
 
               {availableOptionsForAddDropdown.length > 0 && (
-                <div className="flex w-full items-center space-x-2 py-2">
+                <div className="flex w-full items-center px-4 py-2">
                   <TraitIndicator type="none" />
                   <select
                     value={addSchemaDropdownValue}
@@ -250,7 +255,7 @@ const SegmentPopup: React.FC<SegmentPopupProps> = ({ onClose }) => {
 
             {/* Status Messages */}
             {error && (
-              <div className="p-2 bg-red-100 text-red-700 rounded text-sm mb-4">
+              <div className="p-2  text-red-700 font-bold rounded text-sm mb-4">
                 {error}
               </div>
             )}
