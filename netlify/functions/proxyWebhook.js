@@ -1,61 +1,55 @@
-const fetch = require("node-fetch");
-const WEBHOOK_URL = "https://webhook.site/17dce9d5-1851-469c-b08b-237cbd7597a6";
-
-exports.handler = async function (event) {
-  if (event.httpMethod !== "POST") {
-    return { statusCode: 405, body: "Method Not Allowed" };
-  }
-
-  try {
-    // Forward the body to the webhook URL
-    const response = await fetch(WEBHOOK_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: event.body,
-    });
-
-    const text = await response.text();
-
-    return {
-      statusCode: response.status,
-      headers: { "Content-Type": "text/plain" },
-      body: text,
-    };
-  } catch (err) {
-    return { statusCode: 502, body: `Proxy error: ${err.message}` };
-  }
-};
-const fetch = require("node-fetch");
+const nodeFetch = require("node-fetch");
 
 // The external URL you want to hit
 const EXTERNAL_WEBHOOK_URL =
   "https://webhook.site/17dce9d5-1851-469c-b08b-237cbd7597a6";
 
 exports.handler = async (event, context) => {
-  // Only process POST requests
   if (event.httpMethod !== "POST") {
-    return { statusCode: 405, body: "Method Not Allowed" };
+    return {
+      statusCode: 405,
+      body: JSON.stringify({ message: "Method Not Allowed" }),
+    };
+  }
+
+  // Handle potential Base64 encoding from Netlify
+  let requestBody = event.body;
+  if (event.isBase64Encoded) {
+    try {
+      requestBody = Buffer.from(event.body, "base64").toString("utf8");
+    } catch (e) {
+      console.error("Base64 decoding failed:", e);
+      return {
+        statusCode: 400,
+        body: JSON.stringify({
+          message: "Invalid Base64 encoding in payload.",
+        }),
+      };
+    }
   }
 
   try {
-    // Forward the payload from the client to webhook.site
-    const response = await fetch(EXTERNAL_WEBHOOK_URL, {
+    // Forward the body to the webhook URL using the renamed 'nodeFetch'
+    const response = await nodeFetch(EXTERNAL_WEBHOOK_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: event.body,
+      body: requestBody, // Use the (potentially) decoded body string
     });
 
     // Check if the external webhook call succeeded
     if (!response.ok) {
-      // Log the error but return a clean status to the client
-      console.error(`Webhook failed with status: ${response.status}`);
+      console.error(`External Webhook failed with status: ${response.status}`);
+      const errorText = await response.text();
+
       return {
-        statusCode: response.status,
-        body: JSON.stringify({ message: "External webhook call failed" }),
+        // Return 500 or the external status back to the client
+        statusCode: 500,
+        body: JSON.stringify({
+          message: `External service failed: ${response.status} ${response.statusText}`,
+          details: errorText.substring(0, 100),
+        }),
       };
     }
 
@@ -66,12 +60,13 @@ exports.handler = async (event, context) => {
         message: "Segment data sent successfully via proxy.",
       }),
     };
-  } catch (error) {
-    console.error("Proxy Function Error:", error);
+  } catch (err) {
+    // Catch network errors, timeouts, etc., from the fetch call
+    console.error("Proxy Function Error:", err);
     return {
       statusCode: 500,
       body: JSON.stringify({
-        message: `Internal Server Error: ${error.message}`,
+        message: `Internal Server Error: ${err.message}`,
       }),
     };
   }
